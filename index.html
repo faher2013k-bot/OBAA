@@ -2,205 +2,240 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة نتائج الطلاب - OBAA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OBAA Students">
+    
+    <title>بوابة الطالب - OBAA</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        html, body {
+            height: 100%;
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
-        body {
             background-color: #f4f6f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
         }
-        .container {
-            background-color: #ffffff;
-            width: 100%;
+        .app-container {
             max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 15px 40px 15px;
+        }
+        .header {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+            padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            padding: 30px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+            margin-bottom: 15px;
         }
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e3c72;
-            margin-bottom: 5px;
-            letter-spacing: 2px;
+        .header h2 { margin: 0 0 5px 0; font-size: 22px; }
+        .header p { margin: 0; opacity: 0.9; font-size: 13px; }
+        
+        .search-card {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
         }
-        .subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #444;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-            text-align: center;
-        }
-        input[type="text"]:focus {
-            border-color: #1e3c72;
-        }
-        button {
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #333; }
+        input {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: #fff;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            background: #FAFAFA;
+        }
+        input:focus { border-color: #FF9800; background: #FFF; }
+        .btn-search {
+            width: 100%;
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(255,152,0,0.25);
+        }
+        
+        .student-info {
+            background: #E3F2FD;
+            border-right: 4px solid #007AFF;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .student-info h3 { margin: 0 0 4px 0; color: #007AFF; font-size: 16px; }
+        .student-info p { margin: 0; font-weight: bold; color: #555; font-size: 13px; }
+
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .filter-btn {
+            flex: 1;
+            padding: 10px 4px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
+            background-color: #6c757d;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
-            transition: opacity 0.3s;
+            font-size: 12px;
         }
-        button:hover {
-            opacity: 0.95;
-        }
-        .result-card {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
+        .filter-btn.active { background-color: #007AFF; }
+
+        .subject-card {
+            background: #ffffff;
+            padding: 14px;
             border-radius: 12px;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            text-align: right;
-        }
-        .result-card h3 {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
-            text-align: center;
-        }
-        .info-row {
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #EFEFEF;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 15px;
+            align-items: center;
         }
-        .info-label {
-            font-weight: 600;
-            color: #555;
-        }
-        .info-value {
-            color: #111;
-            font-weight: 700;
-        }
-        .error-message {
-            display: none;
-            color: #e53e3e;
-            background-color: #fff5f5;
-            padding: 10px;
+        .subject-name { font-weight: bold; font-size: 14px; color: #222; }
+        .grades-group { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+        .badge {
+            background: #F8F9FA;
+            padding: 6px 10px;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 14px;
-            border: 1px solid #fed7d7;
-        }
-        .footer {
-            margin-top: 25px;
             font-size: 12px;
-            color: #aaa;
+            font-weight: bold;
+            border: 1px solid #E0E0E0;
         }
+        .badge span { color: #007AFF; }
+        .no-data { text-align: center; color: #888; padding: 30px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">OBAA</div>
-    <div class="subtitle">بوابة الاستعلام عن نتائج الطلاب</div>
-
-    <div class="form-group">
-        <label for="studentCode">أدخل رمز الطالب الخاص بك:</label>
-        <input type="text" id="studentCode" placeholder="مثال: STU101" autocomplete="off">
-    </div>
-
-    <button onclick="checkResult()">عرض النتيجة</button>
-
-    <div id="errorMessage" class="error-message"></div>
-
-    <div id="resultCard" class="result-card">
-        <h3>بطاقة النتيجة</h3>
-        <div class="info-row">
-            <span class="info-label">اسم الطالب:</span>
-            <span class="info-value" id="resName">-</span>
+    <div class="app-container">
+        <div class="header">
+            <h2>🎓 بوابة الطالب - OBAA</h2>
+            <p>تطبيق الويب الرسمي لنتائج الطلاب</p>
         </div>
-        <div class="info-row">
-            <span class="info-label">الصف:</span>
-            <span class="info-value" id="resClass">-</span>
+
+        <div class="search-card">
+            <label>كود الطالب:</label>
+            <input type="text" id="studentCode" placeholder="أدخل الكود هنا...">
+            <button class="btn-search" onclick="fetchGrades()">🔍 عرض الدرجات</button>
         </div>
-        <div class="info-row">
-            <span class="info-label">المعدل العام:</span>
-            <span class="info-value" id="resGPA">-</span>
+
+        <div id="studentInfoBox" class="student-info">
+            <h3 id="resName">-</h3>
+            <p id="resClass">-</p>
         </div>
-        <div class="info-row">
-            <span class="info-label">التقدير:</span>
-            <span class="info-value" id="resStatus" style="color: #2b6cb0;">-</span>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
+            <button class="filter-btn" onclick="setFilter('sabr', this)">سبر فقط</button>
+            <button class="filter-btn" onclick="setFilter('quiz', this)">مذاكرة فقط</button>
+            <button class="filter-btn" onclick="setFilter('exam', this)">فحص فقط</button>
+        </div>
+
+        <div id="gradesContainer">
+            <div class="no-data">أدخل كود الطالب لبدء العرض 📚</div>
         </div>
     </div>
 
-    <div class="footer">تطبيق OBAA التعليمي - جميع الحقوق محفوظة</div>
-</div>
+    <script>
+        const databaseURL = "https://obaa-ae096-default-rtdb.firebaseio.com/";
 
-<script>
-    // قاعدة بيانات تجريبية للنتائج
-    const studentsData = {
-        "STU101": { name: "أحمد كوجان", grade: "الثامن الأساسي", gpa: "96.5%", status: "ممتاز" },
-        "STU102": { name: "محمد علي", grade: "الثامن الأساسي", gpa: "88.0%", status: "جيد جداً" },
-        "STU103": { name: "عمر خالد", grade: "الثامن الأساسي", gpa: "75.5%", status: "جيد" }
-    };
+        const subjects = [
+            { id: "french", name: "1. اللغة الفرنسية" },
+            { id: "english", name: "2. اللغة الإنكليزية" },
+            { id: "math", name: "3. الرياضيات" },
+            { id: "arabic", name: "4. اللغة العربية" },
+            { id: "history", name: "5. التاريخ" },
+            { id: "geography", name: "6. الجغرافيا" },
+            { id: "computer", name: "7. المعلوماتية" },
+            { id: "physchem", name: "8. الفيزياء والكيمياء" },
+            { id: "religion", name: "9. التربية الدينية" },
+            { id: "biology", name: "10. علم الأحياء" },
+            { id: "wonders", name: "11. Wonders" },
+            { id: "engmath", name: "12. Math (Eng)" },
+            { id: "engsci", name: "13. Science (Eng)" }
+        ];
 
-    function checkResult() {
-        const inputCode = document.getElementById('studentCode').value.trim().toUpperCase();
-        const resultCard = document.getElementById('resultCard');
-        const errorMessage = document.getElementById('errorMessage');
+        let currentData = null;
+        let activeFilter = 'all';
 
-        resultCard.style.display = 'none';
-        errorMessage.style.display = 'none';
+        function fetchGrades() {
+            const code = document.getElementById('studentCode').value.trim();
+            if(!code) {
+                alert("⚠️ يرجى إدخال كود الطالب أولاً!");
+                return;
+            }
 
-        if (!inputCode) {
-            errorMessage.textContent = 'يرجى إدخال رمز الطالب أولاً.';
-            errorMessage.style.display = 'block';
-            return;
+            fetch(databaseURL + "students/" + code + ".json")
+                .then(res => res.json())
+                .then(data => {
+                    if (data) {
+                        currentData = data;
+                        document.getElementById('resName').innerText = "👤 الطالب: " + (data.name || 'غير محدد');
+                        document.getElementById('resClass').innerText = "🏫 الصف: " + (data.class || 'غير محدد');
+                        document.getElementById('studentInfoBox').style.display = 'block';
+                        renderGrades();
+                    } else {
+                        alert("❌ الكود غير موجود في النظام!");
+                        document.getElementById('studentInfoBox').style.display = 'none';
+                        document.getElementById('gradesContainer').innerHTML = '<div class="no-data">لم يتم العثور على بيانات.</div>';
+                    }
+                })
+                .catch(err => alert("❌ خطأ في جلب البيانات: " + err.message));
         }
 
-        if (studentsData[inputCode]) {
-            const data = studentsData[inputCode];
-            document.getElementById('resName').textContent = data.name;
-            document.getElementById('resClass').textContent = data.grade;
-            document.getElementById('resGPA').textContent = data.gpa;
-            document.getElementById('resStatus').textContent = data.status;
-            
-            resultCard.style.display = 'block';
-        } else {
-            errorMessage.textContent = 'رمز الطالب غير صحيح أو لم تعلن النتيجة بعد.';
-            errorMessage.style.display = 'block';
+        function setFilter(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFilter = type;
+            if(currentData) renderGrades();
         }
-    }
-</script>
 
+        function renderGrades() {
+            const container = document.getElementById('gradesContainer');
+            container.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const subData = (currentData && currentData[sub.id]) ? currentData[sub.id] : { sabr: "-", quiz: "-", exam: "-" };
+                
+                let badgesHTML = '';
+                if(activeFilter === 'all' || activeFilter === 'sabr') {
+                    badgesHTML += `<div class="badge">سبر: <span>${subData.sabr || '-'}</span></div>`;
+                }
+                if(activeFilter === 'all' || activeFilter === 'quiz') {
+                    badgesHTML += `<div class="badge">مذاكرة: <span>${subData.quiz || '-'}</span></div>`;
+                }
+                if(activeFilter === 'all' || activeFilter === 'exam') {
+                    badgesHTML += `<div class="badge">فحص: <span>${subData.exam || '-'}</span></div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="subject-card">
+                        <span class="subject-name">${sub.name}</span>
+                        <div class="grades-group">${badgesHTML}</div>
+                    </div>
+                `;
+            });
+        }
+    </script>
 </body>
 </html>
