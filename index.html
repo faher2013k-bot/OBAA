@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة نتائج الطلاب - OBAA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+        input[type="text"]:focus {
+            border-color: #1e3c72;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        button:hover {
+            opacity: 0.95;
+        }
+        .result-card {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-align: right;
+        }
+        .result-card h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .info-value {
+            color: #111;
+            font-weight: 700;
+        }
+        .error-message {
+            display: none;
+            color: #e53e3e;
+            background-color: #fff5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            border: 1px solid #fed7d7;
+        }
+        .footer {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">OBAA</div>
+    <div class="subtitle">بوابة الاستعلام عن نتائج الطلاب</div>
+
+    <div class="form-group">
+        <label for="studentCode">أدخل رمز الطالب الخاص بك:</label>
+        <input type="text" id="studentCode" placeholder="مثال: STU101" autocomplete="off">
+    </div>
+
+    <button onclick="checkResult()">عرض النتيجة</button>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div id="resultCard" class="result-card">
+        <h3>بطاقة النتيجة</h3>
+        <div class="info-row">
+            <span class="info-label">اسم الطالب:</span>
+            <span class="info-value" id="resName">-</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">الصف:</span>
+            <span class="info-value" id="resClass">-</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">المعدل العام:</span>
+            <span class="info-value" id="resGPA">-</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">التقدير:</span>
+            <span class="info-value" id="resStatus" style="color: #2b6cb0;">-</span>
+        </div>
+    </div>
+
+    <div class="footer">تطبيق OBAA التعليمي - جميع الحقوق محفوظة</div>
+</div>
+
+<script>
+    // قاعدة بيانات تجريبية للنتائج
+    const studentsData = {
+        "STU101": { name: "أحمد كوجان", grade: "الثامن الأساسي", gpa: "96.5%", status: "ممتاز" },
+        "STU102": { name: "محمد علي", grade: "الثامن الأساسي", gpa: "88.0%", status: "جيد جداً" },
+        "STU103": { name: "عمر خالد", grade: "الثامن الأساسي", gpa: "75.5%", status: "جيد" }
+    };
+
+    function checkResult() {
+        const inputCode = document.getElementById('studentCode').value.trim().toUpperCase();
+        const resultCard = document.getElementById('resultCard');
+        const errorMessage = document.getElementById('errorMessage');
+
+        resultCard.style.display = 'none';
+        errorMessage.style.display = 'none';
+
+        if (!inputCode) {
+            errorMessage.textContent = 'يرجى إدخال رمز الطالب أولاً.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        if (studentsData[inputCode]) {
+            const data = studentsData[inputCode];
+            document.getElementById('resName').textContent = data.name;
+            document.getElementById('resClass').textContent = data.grade;
+            document.getElementById('resGPA').textContent = data.gpa;
+            document.getElementById('resStatus').textContent = data.status;
+            
+            resultCard.style.display = 'block';
+        } else {
+            errorMessage.textContent = 'رمز الطالب غير صحيح أو لم تعلن النتيجة بعد.';
+            errorMessage.style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>
